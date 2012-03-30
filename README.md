@@ -47,4 +47,4 @@ For a particular time of day:
     Notches::Hit.joins(:time).where('time between ?', '09:00:00', '17:00:00').count
 
 To get a better idea of how Notches is setup check out the
-[Notches::Hit](http://github.com/hypertiny/notches/app/models/notches/hit.rb) model.
+[Notches::Hit](http://github.com/hypertiny/notches/blob/master/app/models/notches/hit.rb) model.
