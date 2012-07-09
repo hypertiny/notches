@@ -13,6 +13,8 @@ class Notches::Hit < ActiveRecord::Base
   belongs_to :date,    :foreign_key => :notches_date_id
   belongs_to :time,    :foreign_key => :notches_time_id
 
+  scope :unique, group("notches_url_id, notches_session_id, notches_ip_id")
+
   def self.log(attributes)
     hit = self.new
     hit.transaction do
