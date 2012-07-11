@@ -18,12 +18,17 @@ class Notches::Hit < ActiveRecord::Base
   def self.log(attributes)
     hit = self.new
     hit.transaction do
+      Rails.logger.info("[Notches] Tracking #{attributes.inspect} at #{Date.today} #{Time.now}")
       hit.url = Notches::URL.find_or_create_by_url(attributes[:url])
       hit.session = Notches::Session.find_or_create_by_session_id(attributes[:session_id])
       hit.ip = Notches::IP.find_or_create_by_ip(attributes[:ip])
       hit.date = Notches::Date.find_or_create_by_date(Date.today)
       hit.time = Notches::Time.find_or_create_by_time(Time.now)
-      hit.save! rescue ActiveRecord::RecordNotUnique
+      begin
+        hit.save!
+      rescue ActiveRecord::RecordNotUnique
+        Rails.logger.info "Skipping non-unique hit"
+      end
     end
     hit
   end
