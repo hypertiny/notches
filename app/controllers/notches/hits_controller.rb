@@ -1,5 +1,6 @@
 class Notches::HitsController < ActionController::Base
   def new
+    session[:notches]
     Notches::Hit.log(
       :url => params[:url],
       :session_id => request.session_options[:id],
