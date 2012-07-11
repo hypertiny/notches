@@ -26,7 +26,7 @@ class Notches::Hit < ActiveRecord::Base
       hit.time = Notches::Time.find_or_create_by_time(Time.now)
       begin
         hit.save!
-      rescue ActiveRecord::RecordNotUnique
+      rescue #ActiveRecord::RecordNotUnique
         Rails.logger.info "Skipping non-unique hit"
       end
     end
