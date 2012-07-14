@@ -9,6 +9,7 @@ describe Notches::HitsController do
     end
 
     it "logs the hit" do
+      @request.env['HTTP_USER_AGENT'] = 'FeedBurner/1.0'
       @request.stub(:remote_ip => '234.101.82.14')
       @request.stub(:session_options => { :id => 'abcd' })
 
@@ -17,6 +18,7 @@ describe Notches::HitsController do
       Notches::Hit.count.should == 1
       hit = Notches::Hit.first
       hit.url.url.should == '/posts'
+      hit.user_agent.user_agent.should == 'FeedBurner/1.0'
       hit.ip.ip.should == '234.101.82.14'
       hit.session.session_id.should == 'abcd'
     end

@@ -1,3 +1,5 @@
 Rails.application.routes.draw do
-  resources :notches, :only => [:create]
+  namespace 'notches' do
+    resources :hits, :only => [:new]
+  end
 end

@@ -56,7 +56,12 @@ describe Notches::Hit do
       end
 
       it "creates a hit for today and current time with those attributes" do
-        Notches::Hit.log({:url => '/posts', :session_id => '1', :ip => '0.0.0.1' })
+        Notches::Hit.log({
+          :url => '/posts',
+          :user_agent => 'FeedBurner/1.0',
+          :session_id => '1',
+          :ip => '0.0.0.1'
+        })
         hit = Notches::Hit.first
         hit.should be_present
         hit.url.url.should == '/posts'
@@ -64,12 +69,14 @@ describe Notches::Hit do
         hit.ip.ip.should == '0.0.0.1'
         hit.date.date.should == today
         hit.time.time.strftime('%H:%M:%S').should == now.strftime('%H:%M:%S')
+        hit.user_agent.user_agent.should == 'FeedBurner/1.0'
       end
     end
 
     let(:existing_hit) { 
       Notches::Hit.log(
         :url => "/posts/1",
+        :user_agent => 'FeedBurner/1.0',
         :session_id => '1',
         :ip => '0.0.0.1'
       )
@@ -121,6 +128,16 @@ describe Notches::Hit do
       hit.time.id.should == existing_hit.time.id
     end
 
+    it "does not create a new UserAgent record if there's a record for that UserAgent already" do
+      hit = Notches::Hit.log(
+        :url => '/post/2',
+        :user_agent => 'FeedBurner/1.0',
+        :session_id => '2',
+        :ip => '0.0.0.2'
+      )
+      hit.user_agent.id.should == existing_hit.user_agent.id
+    end
+
     context "a hit with the same url, session, ip, date and time exists already" do
       it "does not log the hit" do
         Date.stub(:today => existing_hit.date.date)
@@ -128,6 +145,7 @@ describe Notches::Hit do
         expect {
           hit = Notches::Hit.log(
             :url => existing_hit.url.url,
+            :user_agent => 'FeedBurner/1.0',
             :session_id => existing_hit.session.session_id,
             :ip => existing_hit.ip.ip
           )

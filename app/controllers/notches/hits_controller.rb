@@ -3,6 +3,7 @@ class Notches::HitsController < ActionController::Base
     session[:notches]
     Notches::Hit.log(
       :url => params[:url],
+      :user_agent => request.env["HTTP_USER_AGENT"],
       :session_id => request.session_options[:id],
       :ip => request.remote_ip
     )
