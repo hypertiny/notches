@@ -12,7 +12,7 @@ Add this to your Gemfile and run the `bundle` command.
 
 And then install and run the necessary migrations.
 
-    rake notches_engine:install:migrations
+    rake notches:install:migrations
     rake db:migrate
 
 Mount your engine at your desired location in `config/routes.rb`.
@@ -45,6 +45,10 @@ For a date:
 For a particular time of day:
 
     Notches::Hit.joins(:time).where('time between ?', '09:00:00', '17:00:00').count
+
+Or a user agent:
+
+    Notches::Hit.joins(:user_agent).where('user_agent like ?', '%Mobile%').count
 
 To get a better idea of how Notches is setup check out the
 [Notches::Hit](http://github.com/hypertiny/notches/blob/master/app/models/notches/hit.rb) model.
