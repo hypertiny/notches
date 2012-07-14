@@ -4,7 +4,6 @@ class CreateNotchesUserAgents < ActiveRecord::Migration
       t.text :user_agent
     end
     add_column :notches_hits, :notches_user_agent_id, :integer
-    add_index :notches_user_agents, :user_agent
     change_table :notches_hits do |t|
       t.remove_index :name => :notches_index
     end
@@ -29,7 +28,6 @@ class CreateNotchesUserAgents < ActiveRecord::Migration
       :notches_session_id,
       :notches_url_id
     ], :name => :notches_index, :unique => true
-    remove_index :notches_user_agents, :user_agent
     remove_column :notches_hits, :notches_user_agent_id
     drop_table :notches_user_agents
   end
