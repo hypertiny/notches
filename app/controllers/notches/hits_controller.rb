@@ -1,6 +1,6 @@
 class Notches::HitsController < ActionController::Base
   def new
-    session[:notches]
+    session[:notched] = true
     Notches::Hit.log(
       :url => params[:url],
       :user_agent => request.env["HTTP_USER_AGENT"],
