@@ -17,11 +17,15 @@ class Notches::Hit < ActiveRecord::Base
   scope :unique, group("notches_url_id, notches_session_id, notches_ip_id")
 
   def self.log(attributes)
+    attributes[:user_agent] ||= ''
     hit = self.new
     hit.transaction do
       Rails.logger.info("[Notches] Tracking #{attributes.inspect} at #{Date.today} #{Time.now}")
       hit.url = Notches::URL.find_or_create_by_url(attributes[:url])
-      hit.user_agent = Notches::UserAgent.find_or_create_by_user_agent(attributes[:user_agent])
+      hit.user_agent = Notches::UserAgent.find_or_create_by_user_agent_md5(
+        Digest::MD5.hexdigest(attributes[:user_agent]),
+        :user_agent => attributes[:user_agent]
+      )
       hit.session = Notches::Session.find_or_create_by_session_id(attributes[:session_id])
       hit.ip = Notches::IP.find_or_create_by_ip(attributes[:ip])
       hit.date = Notches::Date.find_or_create_by_date(Date.today)

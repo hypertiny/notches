@@ -70,6 +70,7 @@ describe Notches::Hit do
         hit.date.date.should == today
         hit.time.time.strftime('%H:%M:%S').should == now.strftime('%H:%M:%S')
         hit.user_agent.user_agent.should == 'FeedBurner/1.0'
+        hit.user_agent.user_agent_md5.should == Digest::MD5.hexdigest('FeedBurner/1.0')
       end
     end
 
