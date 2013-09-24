@@ -74,7 +74,7 @@ describe Notches::Hit do
       end
     end
 
-    let(:existing_hit) { 
+    let(:existing_hit) {
       Notches::Hit.log(
         :url => "/posts/1",
         :user_agent => 'FeedBurner/1.0',
@@ -151,6 +151,19 @@ describe Notches::Hit do
             :ip => existing_hit.ip.ip
           )
         }.to_not change { Notches::Hit.count }
+      end
+    end
+
+    context "when given a user id" do
+      it "attaches the user id to the session" do
+        hit = Notches::Hit.log({
+          :url => '/posts',
+          :user_agent => 'FeedBurner/1.0',
+          :user_id    => 7,
+          :session_id => '1',
+          :ip => '0.0.0.1'
+        })
+        Notches::UserSession.exists?(notches_session_id: hit.session.id, user_id: 7).should be_true
       end
     end
   end

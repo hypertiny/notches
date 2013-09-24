@@ -1,11 +1,13 @@
 class Notches::HitsController < ActionController::Base
   def new
     session[:notched] = true
+
     Notches::Hit.log(
-      :url => params[:url],
+      :url        => params[:url],
       :user_agent => request.env["HTTP_USER_AGENT"],
+      :user_id    => params[:user_id],
       :session_id => request.session_options[:id],
-      :ip => request.remote_ip
+      :ip         => request.remote_ip
     )
 
     # Don't cache the image.
