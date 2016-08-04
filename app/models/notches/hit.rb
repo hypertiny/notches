@@ -21,15 +21,16 @@ class Notches::Hit < ActiveRecord::Base
     hit = self.new
     hit.transaction do
       Rails.logger.info("[Notches] Tracking #{attributes.inspect} at #{Date.today} #{Time.now}")
-      hit.url = Notches::URL.find_or_create_by(url: attributes[:url])
+      now            = Time.zone.now
+      hit.url        = Notches::URL.find_or_create_by(url: attributes[:url])
       hit.user_agent = Notches::UserAgent.find_or_create_by(
         user_agent_md5: Digest::MD5.hexdigest(attributes[:user_agent]),
         :user_agent => attributes[:user_agent]
       )
       hit.session = Notches::Session.find_or_create_by(session_id: attributes[:session_id])
       hit.ip      = Notches::IP.find_or_create_by(ip: attributes[:ip])
-      hit.date    = Notches::Date.find_or_create_by(date: Date.today)
-      hit.time    = Notches::Time.find_or_create_by(time: Time.now)
+      hit.date    = Notches::Date.find_or_create_by(date: now.to_date)
+      hit.time    = Notches::Time.find_or_create_by_time(now)
 
       if attributes[:user_id].present?
         Notches::UserSession.find_or_create_by(
@@ -40,7 +41,7 @@ class Notches::Hit < ActiveRecord::Base
 
       begin
         hit.save!
-      rescue #ActiveRecord::RecordNotUnique
+      rescue
         Rails.logger.info "Skipping non-unique hit"
       end
     end

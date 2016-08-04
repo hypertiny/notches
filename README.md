@@ -1,14 +1,14 @@
 Notches
 -------
 
-A Rails Engine for tracking your web traffic.
+A Rails Engine for tracking your web traffic or other events.
 
 Installation
 ------------
 
 Add this to your Gemfile and run the `bundle` command.
 
-    gem 'notches', '~> 0.1.0'
+    gem 'notches', '~> 0.6.0'
 
 And then install and run the necessary migrations.
 
@@ -19,7 +19,10 @@ Mount your engine at your desired location in `config/routes.rb`.
 
     mount Notches::Engine => '/notches'
 
-Finally to start recording hits include the notch pixel image at the bottom of your views.
+Recording hits
+--------------
+
+To record hits include the notch pixel image at the bottom of your views.
 
     <%= image_tag "/notches/hits/new.gif?url=#{request.url}" %>
 
@@ -52,3 +55,23 @@ Or a user agent:
 
 To get a better idea of how Notches is setup check out the
 [Notches::Hit](http://github.com/hypertiny/notches/blob/master/app/models/notches/hit.rb) model.
+
+Recording events
+----------------
+
+To record events make the following call, the scope is optional.
+
+    Notches::Event.log(name: 'An important event', scope: 'A scope')
+
+Counting events
+-------------
+
+For a name:
+
+    Notches::Event.joins(:name).where('name like ?', 'An important event').count
+
+For a name and scope:
+
+    Notches::Event.joins(:name, :scope).where(
+      'name like = ? and scope like ?', 'An important event', 'A scope'
+    ).count

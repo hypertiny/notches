@@ -10,49 +10,53 @@ describe Notches::Hit do
       )
     end
 
-    its "valid with valid attributes" do
-      hit.should be_valid
+    it "valid with valid attributes" do
+      expect(hit).to be_valid
     end
 
     it "requires an ip" do
       hit.ip = nil
-      hit.should have(1).error_on(:ip)
+      hit.valid?
+      expect(hit.errors[:ip]).to eq(["can't be blank"])
     end
 
     it "requires a session" do
       hit.session = nil
-      hit.should have(1).error_on(:session)
+      hit.valid?
+      expect(hit.errors[:session]).to eq(["can't be blank"])
     end
 
-    it "requires a " do
+    it "requires a url" do
       hit.url = nil
-      hit.should have(1).error_on(:url)
+      hit.valid?
+      expect(hit.errors[:url]).to eq(["can't be blank"])
     end
 
     it "does not validate if its IP's ip blank" do
-      hit.ip = Notches::IP.new(:ip => '')
-      hit.should have(1).error_on(:ip)
+      hit.ip = Notches::IP.new(:ip => "")
+      hit.valid?
+      expect(hit.errors[:ip]).to eq(["is invalid"])
     end
 
     it "does not validate if its Session's session_id is blank" do
       hit.session = Notches::Session.new(:session_id => '')
-      hit.should have(1).error_on(:session)
+      hit.valid?
+      expect(hit.errors[:session]).to eq(["is invalid"])
     end
 
     it "does not validate if its URL's url is blank" do
       hit.url = Notches::URL.new(:url => '')
-      hit.should have(1).error_on(:url)
+      hit.valid?
+      expect(hit.errors[:url]).to eq(["is invalid"])
     end
   end
 
   describe ".log" do
 
     context "with valid attributes" do
-      let(:today) { Date.today }
-      let(:now) { Time.now }
+      let(:now) { Time.zone.now }
       before do
-        Date.stub(:today => today)
-        Time.stub(:now => now)
+        allow(Time).to receive_message_chain(:zone, :now).and_return(now)
       end
 
       it "creates a hit for today and current time with those attributes" do
@@ -63,14 +67,14 @@ describe Notches::Hit do
           :ip => '0.0.0.1'
         })
         hit = Notches::Hit.first
-        hit.should be_present
-        hit.url.url.should == '/posts'
-        hit.session.session_id.should == '1'
-        hit.ip.ip.should == '0.0.0.1'
-        hit.date.date.should == today
-        hit.time.time.strftime('%H:%M:%S').should == now.strftime('%H:%M:%S')
-        hit.user_agent.user_agent.should == 'FeedBurner/1.0'
-        hit.user_agent.user_agent_md5.should == Digest::MD5.hexdigest('FeedBurner/1.0')
+        expect(hit).to be_present
+        expect(hit.url.url).to eq('/posts')
+        expect(hit.session.session_id).to eq('1')
+        expect(hit.ip.ip).to eq('0.0.0.1')
+        expect(hit.date.date).to eq(now.to_date)
+        expect(hit.time.time.strftime('%H:%M:%S')).to eq(now.strftime('%H:%M:%S'))
+        expect(hit.user_agent.user_agent).to eq('FeedBurner/1.0')
+        expect(hit.user_agent.user_agent_md5).to eq(Digest::MD5.hexdigest('FeedBurner/1.0'))
       end
     end
 
@@ -89,7 +93,7 @@ describe Notches::Hit do
         :session_id => '2',
         :ip => existing_hit.ip.ip
       )
-      hit.ip.id.should == existing_hit.ip.id
+      expect(hit.ip.id).to eq(existing_hit.ip.id)
     end
 
     it "does not create a new URL record if there's a record for that URL already" do
@@ -98,7 +102,7 @@ describe Notches::Hit do
         :session_id => '2',
         :ip => '0.0.0.2'
       )
-      hit.url.id.should == existing_hit.url.id
+      expect(hit.url.id).to eq(existing_hit.url.id)
     end
 
     it "does not create a new Session record there's a record for that session id already" do
@@ -107,7 +111,7 @@ describe Notches::Hit do
         :session_id => existing_hit.session.session_id,
         :ip => '0.0.0.2'
       )
-      hit.session.id.should == existing_hit.session.id
+      expect(hit.session.id).to eq(existing_hit.session.id)
     end
 
     it "does not create a new Date record there's a record for that Date already" do
@@ -116,17 +120,18 @@ describe Notches::Hit do
         :session_id => '2',
         :ip => '0.0.0.2'
       )
-      hit.date.id.should == existing_hit.date.id
+      expect(hit.date.id).to eq(existing_hit.date.id)
     end
 
-    it "does not create a new Time record there's a record for that Time already" do
-      Time.stub(:now => existing_hit.time.time)
+    it "does not create a new Time record if there's a record for that Time already even if date was different" do
+      existing_hit.time.update_attributes!(time: Time.parse('2016-08-03 14:15:59 UTC'))
+      allow(Time).to receive(:now).and_return(Time.parse('2016-08-04 14:15:59 UTC'))
       hit = Notches::Hit.log(
         :url => '/posts/2',
         :session_id => '2',
         :ip => '0.0.0.2'
       )
-      hit.time.id.should == existing_hit.time.id
+      expect(hit.time.id).to eq(existing_hit.time.id)
     end
 
     it "does not create a new UserAgent record if there's a record for that UserAgent already" do
@@ -136,13 +141,12 @@ describe Notches::Hit do
         :session_id => '2',
         :ip => '0.0.0.2'
       )
-      hit.user_agent.id.should == existing_hit.user_agent.id
+      expect(hit.user_agent.id).to eq(existing_hit.user_agent.id)
     end
 
     context "a hit with the same url, session, ip, date and time exists already" do
       it "does not log the hit" do
-        Date.stub(:today => existing_hit.date.date)
-        Time.stub(:now => existing_hit.time.time)
+        allow(Time).to receive_message_chain(:zone, :now).and_return(existing_hit.time.time)
         expect {
           hit = Notches::Hit.log(
             :url => existing_hit.url.url,
@@ -163,7 +167,7 @@ describe Notches::Hit do
           :session_id => '1',
           :ip => '0.0.0.1'
         })
-        Notches::UserSession.exists?(notches_session_id: hit.session.id, user_id: 7).should be_true
+        expect(Notches::UserSession.exists?(notches_session_id: hit.session.id, user_id: 7)).to eq(true)
       end
     end
   end
