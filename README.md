@@ -59,19 +59,25 @@ To get a better idea of how Notches is setup check out the
 Recording events
 ----------------
 
-To record events make the following call, the scope is optional.
+To record events make the following call:
 
-    Notches::Event.log(name: 'An important event', scope: 'A scope')
+    Notches::Event.log(name: 'An event')
+
+Events can have one or two optional scopes:
+
+    Notches::Event.log(name: 'An event', scope: 'A person')
+    Notches::Event.log(name: 'An event', scope: ['A person', 'An object'])
 
 Counting events
 -------------
 
 For a name:
 
-    Notches::Event.joins(:name).where('name like ?', 'An important event').count
+    Notches::Event.joins(:name).where('name = ?', 'An event').count
 
 For a name and scope:
 
     Notches::Event.joins(:name, :scope).where(
-      'name like = ? and scope like ?', 'An important event', 'A scope'
+      'name = ? and scopes.primary = ? and scopes.secondary = ?',
+      'An event', 'A person', 'An object'
     ).count
