@@ -7,10 +7,10 @@ class Notches::Hit < ActiveRecord::Base
 
   validates_associated :url, :session, :ip
 
-  belongs_to :url,        :foreign_key => :notches_url_id, :class_name => "URL"
+  belongs_to :url,        :foreign_key => :notches_url_id, :class_name => "Notches::URL"
   belongs_to :user_agent, :foreign_key => :notches_user_agent_id
   belongs_to :session,    :foreign_key => :notches_session_id
-  belongs_to :ip,         :foreign_key => :notches_ip_id, :class_name => "IP"
+  belongs_to :ip,         :foreign_key => :notches_ip_id, :class_name => "Notches::IP"
   belongs_to :date,       :foreign_key => :notches_date_id
   belongs_to :time,       :foreign_key => :notches_time_id
 

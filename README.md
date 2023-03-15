@@ -8,7 +8,7 @@ Installation
 
 Add this to your Gemfile and run the `bundle` command.
 
-    gem 'notches', '~> 0.6.0'
+    gem 'notches', '~> 0.7.1'
 
 And then install and run the necessary migrations.
 
