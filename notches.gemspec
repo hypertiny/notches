@@ -23,6 +23,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency     'rails',       '>= 4.1'
 
   s.add_development_dependency 'combustion',  '~> 0.5.5'
-  s.add_development_dependency 'rspec-rails', '~> 3.4.2'
+  s.add_development_dependency 'rspec-rails', '~> 3.9.1'
   s.add_development_dependency 'sqlite3',     '~> 1.3.11'
 end
